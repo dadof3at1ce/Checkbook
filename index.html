@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f4e9c">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Checkbook Register (Offline)</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b2430;--mut:#6b7686;--line:#e2e6ec;--acc:#1f4e9c;--accfg:#fff;--neg:#b3261e;--pos:#1b7a3d;--inp:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181d;--card:#1d232b;--tx:#e8ecf1;--mut:#97a2b1;--line:#2d3641;--acc:#6aa0ff;--accfg:#0d1622;--neg:#ff8b83;--pos:#6fd38f;--inp:#14181d}}
+:root[data-theme="dark"]{--bg:#14181d;--card:#1d232b;--tx:#e8ecf1;--mut:#97a2b1;--line:#2d3641;--acc:#6aa0ff;--accfg:#0d1622;--neg:#ff8b83;--pos:#6fd38f;--inp:#14181d}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 -apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.card small{color:var(--mut);display:block}.card b{font-size:20px;font-variant-numeric:tabular-nums}
+.card input{width:100%;font:inherit;font-size:20px;font-weight:700;border:0;border-bottom:1px dashed var(--line);background:transparent;color:var(--tx);padding:0}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:14px}
+input,select,button{font:inherit;font-size:16px;color:var(--tx)}button{min-height:40px}details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:14px}summary{cursor:pointer;font-weight:600}details form{border:0;padding:10px 0 0;margin:0}.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+form input,form select{background:var(--inp);border:1px solid var(--line);border-radius:8px;padding:8px;width:100%}
+button{cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 12px}
+button.p{background:var(--acc);color:var(--accfg);border-color:var(--acc);font-weight:600}
+.bar{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.bar input{flex:1;min-width:140px;background:var(--inp);border:1px solid var(--line);border-radius:8px;padding:8px}
+.bar .st{color:var(--mut);font-size:12px}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.ds{white-space:normal;min-width:140px}
+.neg{color:var(--neg)}.pos{color:var(--pos)}
+tr.cl td{opacity:.75}
+.x{border:0;background:none;color:var(--mut);padding:2px 6px}td.dx{white-space:nowrap}
+.empty{padding:24px;text-align:center;color:var(--mut)}
+.home{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-bottom:16px}
+.acct{cursor:pointer;text-align:left;padding:14px;display:block;width:100%}
+.acct:hover{border-color:var(--acc)}
+.acct .nm{font-weight:600;font-size:16px;margin-bottom:6px;overflow-wrap:anywhere}
+.acct b{font-size:22px;display:block;font-variant-numeric:tabular-nums}
+.acct small{color:var(--mut)}
+.tot{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.hd h1{margin:0;flex:1;overflow-wrap:anywhere}
+.back{border:0;background:none;color:var(--acc);padding:4px 0;font-weight:600}
+#na{display:flex;gap:8px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+#na input{flex:1;min-width:130px;background:var(--inp);border:1px solid var(--line);border-radius:8px;padding:8px}
+@media (max-width:640px){
+main{padding:12px}
+.wrap{border:0;background:none;overflow:visible}
+table,tbody{display:block;min-width:0}
+thead{display:none}
+tr{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"ds ds am" "dt ct bl" "ck rf dx";gap:4px 10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;align-items:center}
+td{border:0;padding:0;white-space:normal;text-align:left}
+td:empty{display:none}
+td.ds{grid-area:ds;font-weight:600;min-width:0}
+td.dt,td.ct,td.rf,td.bl{color:var(--mut);font-size:12px}
+td.dt{grid-area:dt}td.ct{grid-area:ct}td.rf{grid-area:rf}
+td.pay,td.dep{grid-area:am;font-weight:700;text-align:right}
+td.bl{grid-area:bl;text-align:right}td.bl::before{content:"Bal "}
+td.ck{grid-area:ck}td.dx{grid-area:dx;text-align:right}
+input[type=checkbox]{width:26px;height:26px}
+.x{font-size:18px;min-width:40px}
+}
+</style></head><body><main>
+<section id="home">
+ <h1>My Accounts</h1>
+ <div class="card tot" style="margin-bottom:12px"><small>Total across all accounts</small><b id="all">$0.00</b></div>
+ <div class="home" id="list"></div>
+ <form id="na"><input id="nn" placeholder="New account name (e.g. Joint Checking)" required aria-label="Account name"><input id="ns" type="number" step="0.01" placeholder="Starting balance" aria-label="Starting balance"><button class="p" type="submit">Add account</button></form>
+ <details><summary>Backup &amp; move to a new phone</summary>
+ <p class="st" style="color:var(--mut);margin:8px 0">Everything is stored only on this phone, in this browser. Make a backup file regularly and keep it somewhere safe (email it to yourself, or save it to cloud storage). To move to a new phone, restore that backup there.</p>
+ <div class="tools"><button id="bf" type="button">Backup file</button><button id="bc" type="button">Copy backup</button><button id="rf" type="button">Restore from file</button><button id="rp" type="button">Paste backup</button></div>
+ <input type="file" id="fi" accept=".json,application/json" hidden>
+</details>
+ <div class="bar" style="margin-top:10px"><span class="st" id="st"></span></div>
+</section>
+<section id="acc" style="display:none">
+ <button class="back" id="bk" type="button">← All accounts</button>
+ <div class="hd"><h1 id="an"></h1><button id="rn" type="button">Rename</button><button id="dl" type="button">Delete account</button></div>
+<div class="cards">
+ <div class="card"><small>Starting balance</small><input id="start" type="number" step="0.01" value="0" aria-label="Starting balance"></div>
+ <div class="card"><small>Current balance</small><b id="cur">$0.00</b></div>
+ <div class="card"><small>Cleared balance</small><b id="clr">$0.00</b></div>
+ <div class="card"><small>Uncleared items</small><b id="unc">$0.00</b></div>
+</div>
+<details id="trd"><summary>Transfer to another account</summary>
+<form id="tf"><select id="tto" aria-label="To account"></select><input type="date" id="tdate" required aria-label="Date"><input id="tamt" type="number" inputmode="decimal" step="0.01" min="0.01" placeholder="Amount" required aria-label="Amount"><button class="p" type="submit">Transfer</button></form></details>
+<form id="f">
+ <input type="date" id="date" required aria-label="Date">
+ <input id="ref" placeholder="Check # / ref" aria-label="Check number">
+ <input id="desc" placeholder="Description" required aria-label="Description">
+ <select id="cat" aria-label="Category"></select>
+ <select id="type" aria-label="Type"><option value="-1">Payment (−)</option><option value="1">Deposit (+)</option></select>
+ <input id="amt" type="number" inputmode="decimal" step="0.01" min="0.01" placeholder="Amount" required aria-label="Amount">
+ <button class="p" type="submit">Add</button>
+</form>
+<div class="bar"><input id="q" placeholder="Search description, category, ref…" aria-label="Search"><button id="so" type="button"></button><button id="csv" type="button">Export CSV</button></div>
+<p class="st" id="hint" style="color:var(--mut);margin:0 0 8px"></p>
+<div class="wrap"><table><thead><tr><th>Date</th><th>Ref</th><th>Description</th><th>Category</th><th class="n">Payment</th><th class="n">Deposit</th><th>✓</th><th class="n">Balance</th><th></th></tr></thead><tbody id="tb"></tbody></table><div class="empty" id="em">No transactions yet. Add your first one above.</div></div>
+</section>
+</main>
+<script>
+var CATS=["Groceries","Utilities","Rent/Mortgage","Transportation","Dining","Entertainment","Health","Insurance","Savings","Income","Other"];
+var S={accounts:[]},ref=null,timer=null,cur=null,$=function(i){return document.getElementById(i)};
+var fmt=function(n){var s=Math.abs(n).toLocaleString("en-US",{style:"currency",currency:"USD"});return n<0?"−"+s:s};
+CATS.forEach(function(c){var o=document.createElement("option");o.value=o.textContent=c;$("cat").appendChild(o)});
+$("date").valueAsDate=new Date();$("tdate").valueAsDate=new Date();
+function status(t){$("st").textContent=t}
+function save(){status("Saving…");clearTimeout(timer);timer=setTimeout(function(){
+ if(ref){ref.set({accounts:S.accounts}).then(function(){status("Synced to your account")},function(){status("Couldn’t save")})}
+ else{try{localStorage.setItem("checkbook2",JSON.stringify(S));status("Saved on this device. Works offline.")}catch(e){status("Couldn’t save")}}
+},400)}
+function calc(a){var b=a.start,c=a.start;a.tx.forEach(function(t){b+=t.amt;if(t.cl)c+=t.amt});return{bal:b,cb:c}}
+function el(tag,txt,cls){var e=document.createElement(tag);if(txt!=null)e.textContent=txt;if(cls)e.className=cls;return e}
+function route(){
+ var h=location.hash.slice(1);cur=S.accounts.find(function(a){return "a"+a.id===h})||null;
+ $("home").style.display=cur?"none":"block";$("acc").style.display=cur?"block":"none";
+ if(cur)renderAcc();else renderHome();
+}
+function renderHome(){
+ var l=$("list");l.textContent="";var tot=0;
+ S.accounts.forEach(function(a){
+  var c=calc(a);tot+=c.bal;
+  var b=el("button",null,"card acct");b.type="button";
+  b.appendChild(el("div",a.name,"nm"));
+  var v=el("b",fmt(c.bal));if(c.bal<0)v.className="neg";b.appendChild(v);
+  b.appendChild(el("small",a.tx.length+" transaction"+(a.tx.length==1?"":"s")+" · uncleared "+fmt(c.bal-c.cb)));
+  b.onclick=function(){location.hash="a"+a.id};l.appendChild(b);
+ });
+ if(!S.accounts.length)l.appendChild(el("div","No accounts yet. Add your first one below.","empty"));
+ $("all").textContent=fmt(tot);
+}
+function ordered(a){
+ var byDate=function(x,y){return x.date<y.date?-1:x.date>y.date?1:x.id-y.id};
+ if(a.sort==="date")return a.tx.slice().sort(byDate);
+ var c=a.tx.filter(function(t){return t.cl}).sort(function(x,y){return (x.cord||0)-(y.cord||0)||byDate(x,y)});
+ var u=a.tx.filter(function(t){return !t.cl}).sort(byDate);
+ return c.concat(u);
+}
+function move(a,t,d){
+ var c=ordered(a).filter(function(x){return x.cl});c.forEach(function(x,i){x.cord=i+1});
+ var i=c.indexOf(t),j=i+d;if(j<0||j>=c.length)return;
+ var k=c[i].cord;c[i].cord=c[j].cord;c[j].cord=k;save();renderAcc();
+}
+function renderAcc(){
+ var a=cur,q=$("q").value.toLowerCase();
+ var others=S.accounts.filter(function(x){return x!==a});
+ $("trd").style.display=others.length?"block":"none";
+ var tv=$("tto").value;$("tto").textContent="";
+ others.forEach(function(x){var o=el("option",x.name);o.value=x.id;$("tto").appendChild(o)});
+ if(tv)$("tto").value=tv;
+ $("an").textContent=a.name;$("start").value=a.start;
+ var bank=a.sort!=="date";
+ $("so").textContent=bank?"Order: bank (cleared first)":"Order: by date";
+ $("hint").textContent=bank?"Cleared items are listed in the order you check them, then uncleared items by date. Use ▲ ▼ to match your bank’s order.":"";
+ var rows=ordered(a);
+ var bal=a.start;rows.forEach(function(t){bal+=t.amt;t.bal=bal});
+ var c=calc(a);$("cur").textContent=fmt(c.bal);$("clr").textContent=fmt(c.cb);$("unc").textContent=fmt(c.bal-c.cb);
+ var tb=$("tb");tb.textContent="";
+ var vis=rows.filter(function(t){return !q||(t.desc+" "+t.cat+" "+t.ref).toLowerCase().indexOf(q)>-1});
+ $("em").style.display=vis.length?"none":"block";
+ vis.forEach(function(t){
+  var tr=el("tr");if(t.cl)tr.className="cl";
+  function td(txt,cls){var d=el("td",txt,cls);tr.appendChild(d)}
+  td(t.date,"dt");td(t.ref,"rf");td(t.desc,"ds");td(t.cat,"ct");
+  td(t.amt<0?fmt(-t.amt):"","n neg pay");td(t.amt>0?fmt(t.amt):"","n pos dep");
+  var k=el("td",null,"ck"),cb=el("input");cb.type="checkbox";cb.checked=!!t.cl;cb.setAttribute("aria-label","Cleared");
+  cb.onchange=function(){t.cl=cb.checked;
+   if(t.cl){var m=0;a.tx.forEach(function(x){if(x.cl&&x!==t&&(x.cord||0)>m)m=x.cord});t.cord=m+1}else delete t.cord;
+   save();renderAcc()};k.appendChild(cb);tr.appendChild(k);
+  td(fmt(t.bal),"n bl");
+  var d=el("td",null,"dx"),b=el("button","✕","x");b.title="Delete";b.setAttribute("aria-label","Delete transaction");
+  b.onclick=function(){if(confirm(t.tid?"This is one side of a transfer. Delete both sides?":"Delete this transaction?")){
+   S.accounts.forEach(function(ac){ac.tx=ac.tx.filter(function(x){return x!==t&&!(t.tid&&x.tid===t.tid)})});save();renderAcc()}};
+  if(t.cl&&bank&&!q){[["▲",-1,"Move up"],["▼",1,"Move down"]].forEach(function(m){
+   var mb=el("button",m[0],"x");mb.title=m[2];mb.setAttribute("aria-label",m[2]);mb.onclick=function(){move(a,t,m[1])};d.appendChild(mb)})}
+  d.appendChild(b);tr.appendChild(d);tb.appendChild(tr);
+ });
+}
+$("na").onsubmit=function(e){e.preventDefault();
+ var n=$("nn").value.trim();if(!n)return;
+ S.accounts.push({id:Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36),name:n,start:parseFloat($("ns").value)||0,tx:[]});
+ $("nn").value=$("ns").value="";save();renderHome()};
+$("tf").onsubmit=function(e){e.preventDefault();
+ var to=S.accounts.find(function(x){return x.id===$("tto").value}),a=Math.round(parseFloat($("tamt").value)*100)/100;
+ if(!to||!(a>0))return;
+ var d=$("tdate").value,tid=Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36);
+ cur.tx.push({id:Date.now()+Math.random(),date:d,ref:"",desc:"Transfer to "+to.name,cat:"Transfer",amt:-a,cl:false,tid:tid});
+ to.tx.push({id:Date.now()+Math.random(),date:d,ref:"",desc:"Transfer from "+cur.name,cat:"Transfer",amt:a,cl:false,tid:tid});
+ $("tamt").value="";$("trd").open=false;save();renderAcc()};
+function dl(name,data,type){try{var u=URL.createObjectURL(new Blob([data],{type:type})),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}catch(e){status("Couldn’t download. Try Copy backup.")}}
+function backup(){return JSON.stringify({v:2,accounts:S.accounts})}
+function restore(txt){try{var o=JSON.parse(txt);if(!o||!Array.isArray(o.accounts))throw 0;
+ if(!confirm("Replace everything in this app with the backup ("+o.accounts.length+" accounts)?"))return;
+ S={accounts:o.accounts};save();route();status("Backup restored")}catch(e){alert("That doesn’t look like a valid backup.")}}
+$("bf").onclick=function(){dl("checkbook-backup-"+new Date().toISOString().slice(0,10)+".json",backup(),"application/json")};
+$("bc").onclick=function(){navigator.clipboard.writeText(backup()).then(function(){status("Backup copied. Paste it into a note or message to yourself.")},function(){status("Couldn’t copy")})};
+$("rf").onclick=function(){$("fi").click()};
+$("fi").onchange=function(){var f=$("fi").files[0];if(!f)return;var r=new FileReader();r.onload=function(){restore(r.result)};r.readAsText(f);$("fi").value=""};
+$("rp").onclick=function(){var t=prompt("Paste your backup text here");if(t)restore(t)};
+$("so").onclick=function(){cur.sort=cur.sort==="date"?"bank":"date";save();renderAcc()};
+$("bk").onclick=function(){location.hash=""};
+$("rn").onclick=function(){var n=prompt("Account name",cur.name);if(n&&n.trim()){cur.name=n.trim();save();renderAcc()}};
+$("dl").onclick=function(){if(confirm("Delete “"+cur.name+"” and all its transactions? This can’t be undone.")){S.accounts=S.accounts.filter(function(x){return x!==cur});save();location.hash=""}};
+$("f").onsubmit=function(e){e.preventDefault();
+ var a=parseFloat($("amt").value);if(!(a>0))return;
+ cur.tx.push({id:Date.now()+Math.random(),date:$("date").value,ref:$("ref").value.trim(),desc:$("desc").value.trim(),cat:$("cat").value,amt:Math.round(a*100)/100*parseInt($("type").value),cl:false});
+ $("ref").value=$("desc").value=$("amt").value="";$("desc").focus();save();renderAcc()};
+$("start").oninput=function(){cur.start=parseFloat($("start").value)||0;save();renderAcc()};
+$("q").oninput=function(){renderAcc()};
+$("csv").onclick=function(){
+ var q=function(s){return '"'+String(s).replace(/"/g,'""')+'"'};
+ var rows=ordered(cur),bal=cur.start;
+ var out=["Date,Ref,Description,Category,Payment,Deposit,Cleared,Balance"];
+ rows.forEach(function(t){bal+=t.amt;out.push([t.date,q(t.ref),q(t.desc),t.cat,t.amt<0?-t.amt:"",t.amt>0?t.amt:"",t.cl?"x":"",bal.toFixed(2)].join(","))});
+ var fn=cur.name.replace(/[^A-Za-z0-9]+/g,"-")+".csv";
+ dl(fn,out.join("\n"),"text/csv")};
+function load(o){
+ if(o&&Array.isArray(o.accounts)){S={accounts:o.accounts}}
+ else if(o&&Array.isArray(o.tx)){S={accounts:[{id:"main",name:"Main Account",start:+o.start||0,tx:o.tx}]}}
+}
+window.addEventListener("hashchange",route);
+(function(){
+ try{var r=localStorage.getItem("checkbook2")||localStorage.getItem("checkbook");if(r)load(JSON.parse(r));status("Saved on this device. Works offline.")}catch(e){status("Storage is blocked in this browser, so nothing will be saved.")}
+ route();
+})();
+if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+</script></body></html>
